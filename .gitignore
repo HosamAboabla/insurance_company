@@ -1,2 +1,3 @@
 venv/
 main/database_secrets.py
+main/static/
