@@ -12,11 +12,6 @@ create table customer
     address varchar(255) not null,
     primary key(id)
 );
--- purch_plans_nums int --> view
--- total expenses
--- num_of_dependent --> view
--- insert into customer (c_name,phone_number,address) values('hossam','01215415615','cairo',1);
--- insert into customer (c_name,phone_number,address,ben_plan) values('ahmed','01215415615','cairo',2);
 
 
 drop table if exists plan_type;
@@ -48,8 +43,6 @@ create table purchased_plans
 	on update cascade
 );
 
--- insert into purchased_plans(customer_id,ptype_id) values(1,'premium');
--- insert into purchased_plans(customer_id,ptype_id) values(2,'golden');
 
 alter table customer add 
 (
@@ -59,7 +52,6 @@ alter table customer add
 	on update cascade
 );
 
--- insert into customer (benplan_id) values(1);
 
 drop table if exists dependant;
 create table dependant
@@ -79,7 +71,6 @@ create table dependant
 		on update cascade
 );
 
--- insert into dependant (d_name,customer_id,benplan_id,relationship,age) values('ahmed',1,1,'father',20);
 
 drop table if exists hospital;
 create table hospital
@@ -90,8 +81,6 @@ create table hospital
     primary key(id)
 );
 
--- insert into hospital(hospital_name,address) values('elhorriya','cairo');
--- num_of_treated_people int --> view
 
 drop table if exists insurance_claim;
 create table insurance_claim
@@ -112,12 +101,6 @@ create table insurance_claim
         on delete set null
 		on update cascade
 );
--- check (claim = (select C.c_id from customer C,purchased_plans as PS where C.benplan_id=PS.p_id))
--- create view claim as select C.c_id from customer C,purchased_plans as PS where C.benplan_id=PS.p_id;
--- create view claim as select D.c_id from customer C,dependant D,purchased_plans as PS where C.c_id=D.customer_id and D.benplan_id=PS.p_id;
-
--- insert into insurance_claim (expense_amount,expense_details,ins_date,c_id,p_id,(claim)) values(5000,('heartattack','n'),12/10/2020,1,1,(claim));
--- insert into insurance_claim (expense_amount,expense_details,ins_date,c_id,p_id) values(5000,('heartattack','n'),12/10/2020,1,1);
 
 
 drop table if exists has;
@@ -133,7 +116,6 @@ create table has
 		on update cascade
 );
 
--- insert into has values (1,1);
 
 drop table if exists provides;
 create table provides
@@ -154,29 +136,6 @@ create table provides
 
 
 
-/*
-
-
-create view purch_plans_nums as select C.c_id,count(*) from customer C,purchased_plans PS where C.c_id=PS.customer_id;
-create view num_of_dependent as select count(*) from customer C,dependant D where C.c_id=D.customer_id;
-create view num_of_treated_people as select count(*) from
- customer C,dependant D,hospital H ,purchased_plans PS 
- where (C.benplan_id=PS.p_id) or (C.c_id=D.customer_id and D.benplan_id=PS.p_id) ;
- 
- update insurance_claim IC 
- set ben_claim = 
- (select distinct C.id 
- from customer C,purchased_plans PS 
- where IC.customer_id=C.id and C.benplan_id=PS.id );
- 
- update insurance_claim IC 
- set ben_claim = 
- (select distinct D.d_id 
- from customer C,dependant D,purchased_plans PS 
- where IC.c_id=C.c_id and C.c_id=D.customer_id and D.benplan_id=PS.p_id);
- 
- */
- 
  -- my update 'galal'
 create view list_of_customers as
 	select * from customer;
