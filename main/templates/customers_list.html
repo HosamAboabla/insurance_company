@@ -46,6 +46,7 @@
                                         <th class="border-top-0">Phone number</th>
                                         <th class="border-top-0">Address</th>
                                         <th class="border-top-0">Purchase plan</th>
+                                        <th class="border-top-0">File Claim</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -57,9 +58,16 @@
                                         <td>{{customer.address}}</td>
                                         <td>
                                             <a href="purhase_plan/{{customer.id}}" target="_blank"
-                                        class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">
-                                        Purchase plan</a>
+                                            class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">
+                                            Purchase plan</a>
                                         </td>
+
+                                        <td>
+                                            <a href="file_insurance_claim/{{customer.id}}" target="_blank"
+                                            class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">
+                                            File insurance claim</a>
+                                        </td>
+
                                     </tr>
                                     {% endfor %}
                                 </tbody>

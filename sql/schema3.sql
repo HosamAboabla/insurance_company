@@ -98,17 +98,17 @@ create table insurance_claim
 (
 	id int auto_increment,
     expense_amount int,
-    expense_details varchar(20),
-    ins_date datetime,
+    expense_details Text,-- varchar(20),
+    insurance_date date,
     customer_id int,
-    p_id int,
-	ben_claim int, 
-    -- solved bool
+    plan_id int,
+	-- ben_claim int, 
+    resolved bool default false,
     primary key(id),
     foreign key(customer_id) references customer(id)
 		on delete cascade
 		on update cascade,
-    foreign key(p_id) references purchased_plans(id)
+    foreign key(plan_id) references purchased_plans(id)
         on delete set null
 		on update cascade
 );
@@ -154,7 +154,7 @@ create table provides
 
 
 
-
+/*
 
 
 create view purch_plans_nums as select C.c_id,count(*) from customer C,purchased_plans PS where C.c_id=PS.customer_id;
@@ -163,12 +163,19 @@ create view num_of_treated_people as select count(*) from
  customer C,dependant D,hospital H ,purchased_plans PS 
  where (C.benplan_id=PS.p_id) or (C.c_id=D.customer_id and D.benplan_id=PS.p_id) ;
  
- update insurance_claim IC set ben_claim = 
- (select distinct C.id from customer C,purchased_plans PS where IC.customer_id=C.id and C.benplan_id=PS.id );
- update insurance_claim IC set ben_claim = 
- (select distinct D.d_id from customer C,dependant D,purchased_plans PS where IC.c_id=C.c_id and C.c_id=D.customer_id and D.benplan_id=PS.p_id);
+ update insurance_claim IC 
+ set ben_claim = 
+ (select distinct C.id 
+ from customer C,purchased_plans PS 
+ where IC.customer_id=C.id and C.benplan_id=PS.id );
  
+ update insurance_claim IC 
+ set ben_claim = 
+ (select distinct D.d_id 
+ from customer C,dependant D,purchased_plans PS 
+ where IC.c_id=C.c_id and C.c_id=D.customer_id and D.benplan_id=PS.p_id);
  
+ */
  
  -- my update 'galal'
 create view list_of_customers as
@@ -219,7 +226,17 @@ begin
 End //
 DELIMITER ;
 
-
+drop procedure if exists get_customer_name;
+DElIMITER //
+create procedure get_customer_name(
+In c_id int 
+)
+begin
+	select name
+    from customer 
+    where id=c_id ;
+End //
+DELIMITER ;
 
 
 drop procedure if exists dependants_of_customer;
@@ -270,5 +287,77 @@ DELIMITER ;
 
 
 
+
+drop procedure if exists customer_purchased_plans;
+DElIMITER //
+create procedure customer_purchased_plans(
+In c_id int 
+)
+begin	
+	 select PS.id as id , C.name as name , "customer" as type
+	 from customer C,purchased_plans PS 
+	 where C.benplan_id=PS.id and C.id = c_id
+	 union
+	 select PS.id as id , D.name as name , "dependant" as type
+	 from dependant D,purchased_plans PS 
+	 where D.benplan_id=PS.id and D.customer_id = c_id;
+End //
+DELIMITER ;
+
+
+
+drop procedure if exists file_insurance_claim;
+DElIMITER //
+create procedure file_insurance_claim(
+In expense_amount int ,
+In expense_details text ,
+In insurance_date date ,
+In customer_id int,
+In plan_id int,
+In resolved bool
+)
+begin	
+		SET foreign_key_checks = 0;
+		insert into insurance_claim
+		values (null , expense_amount , expense_details , insurance_date , customer_id , plan_id , resolved);
+		SET foreign_key_checks = 1;
+End //
+DELIMITER ;
+
+
+drop procedure if exists get_plan_beneficary;
+DElIMITER //
+create procedure get_plan_beneficary(
+In plan_id int 
+)
+begin	
+	 select id , name , 'customer' as type
+	 from customer 
+	 where benplan_id=plan_id
+	 union
+	 select id , name , 'dependant' as type
+	 from dependant 
+	 where benplan_id = plan_id;
+End //
+DELIMITER ;
+
+
+
+drop procedure if exists mark_as_resolved;
+DElIMITER //
+create procedure mark_as_resolved(
+In claim_id int 
+)
+begin
+	UPDATE insurance_claim
+	SET resolved= true
+	WHERE id=claim_id;
+End //
+DELIMITER ;
+
 call dependants_of_customer(1);
 call get_customer_benefits(1);
+
+call customer_purchased_plans(1);
+
+call get_customer_name(1);

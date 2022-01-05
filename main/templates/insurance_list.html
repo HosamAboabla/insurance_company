@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="page-wrapper">
+        <!-- ============================================================== -->
+        <!-- Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <div class="page-breadcrumb bg-white">
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+                    <h4 class="page-title">Basic Table</h4>
+                </div>
+                <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+                    <div class="d-md-flex">
+                        <ol class="breadcrumb ms-auto">
+                            <li><a href="#" class="fw-normal">Dashboard</a></li>
+                        </ol>
+                        <a href="https://www.wrappixel.com/templates/ampleadmin/" target="_blank"
+                            class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Upgrade
+                            to Pro</a>
+                    </div>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Container fluid  -->
+        <!-- ============================================================== -->
+        <div class="container-fluid">
+            <!-- ============================================================== -->
+            <!-- Start Page Content -->
+            <!-- ============================================================== -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="white-box">
+                        <div class="table-responsive">
+                            <form action="" method="post">
+                                <button type='submit' class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">
+                                    Submit
+                                </button>
+                                <table class="table text-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-top-0">#</th>
+                                            <th class="border-top-0">Customer name</th>
+                                            <th class="border-top-0">beneficary</th>
+                                            <th class="border-top-0">expense_amount</th>
+                                            <th class="border-top-0">resolved?</th>
+                                            <th class="border-top-0">Mark as resolved</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for insurance_claim in context.insurance_claims %}
+                                        <tr>
+                                            <td>{{insurance_claim.id}}</td>
+                                            <td>{{insurance_claim.customer_name}}</td>
+                                            <td>{{ insurance_claim.beneficary_name }} </td>
+                                            <td>{{insurance_claim.expense_amount}}</td>
+                                            <td>
+                                                {{ insurance_claim.resolved }}
+                                            </td>
+
+                                            <td>
+                                                {% if insurance_claim.resolved == 0 %}
+                                                    <input type="checkbox" name='resolve' value={{ insurance_claim.id }}>
+                                                {% else %}
+                                                    <h3>Already resolved</h3>
+                                                {% endif %}
+                                            </td>
+
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End PAge Content -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Right sidebar -->
+            <!-- ============================================================== -->
+            <!-- .right-sidebar -->
+            <!-- ============================================================== -->
+            <!-- End Right sidebar -->
+            <!-- ============================================================== -->
+        </div>
+    </div>
+{% endblock content %}

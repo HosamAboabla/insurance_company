@@ -1,5 +1,5 @@
 from flask import Flask , render_template , redirect , url_for , request
-from forms import CustomerCreationForm , AddDependantForm , HospitalCreationForm , HospitalAssociatePlanForm , PurchasedPlansForm
+from forms import CustomerCreationForm , AddDependantForm , HospitalCreationForm , HospitalAssociatePlanForm , PurchasedPlansForm , FileInsuranceClaimForm
 # from settings import db
 from flask_mysqldb import MySQL
 from database_secrets import HOST , USER , DATABASE , PASSWORD
@@ -164,6 +164,91 @@ def PurchasedPlansView(id):
         
     }
     return render_template(template_name , context=context , form = form)
+
+
+
+# -------------------------------- Customer file insurance claim --------------------------------
+@app.route("/file_insurance_claim/<id>", methods = ['GET' , 'POST'])
+def FileInsuranceClaimView(id):
+    template_name = "create.html" 
+    form = FileInsuranceClaimForm(request.form)
+    
+    cur = mysql.connection.cursor()
+    if request.method == 'POST':# and form.validate():
+        expenses_amout = form.expense_amount.data
+        expense_details =  form.expense_details.data
+        insurance_data = str(form.insurance_date.data)
+        plan_id = form.plan_id.data
+        resolved = False
+
+        print(form.data)
+    
+
+        if expenses_amout and expense_details and insurance_data and plan_id:
+            cur.execute(''' 
+                call file_insurance_claim
+                (%s , %s , %s , %s , %s , %s);''',( expenses_amout , expense_details , insurance_data , id , plan_id , resolved))
+            mysql.connection.commit()
+ 
+        return redirect(url_for('table'))
+
+    else:
+
+        
+        cur.execute(''' call customer_purchased_plans(%s) ''',(id))
+        purchased_plans = cur.fetchall()
+
+
+        choices_purchased_plans = [ (purchased_plan['id'] , f"{purchased_plan['id']} - {purchased_plan['name']}") for purchased_plan in purchased_plans ]
+
+        form.plan_id.choices =choices_purchased_plans
+
+    context = {
+        
+    }
+    return render_template(template_name , context=context , form = form)
+
+
+
+# -------------------------------- Customer file insurance claim --------------------------------
+@app.route("/insurance_claim_list" , methods = ['GET' , 'POST'])
+def InsuranceClaimListView():
+    template_name = "insurance_list.html" 
+    cur = mysql.connection.cursor()
+
+    if request.method == 'POST':
+        resolve = request.form.getlist("resolve")
+
+        for claim_id in resolve:
+            cur.execute('''call mark_as_resolved(%s); ''', str(claim_id))
+            mysql.connection.commit()
+            
+
+        return redirect(url_for('table'))
+    else:
+
+        resolved_check = request.args.get("resolved")
+        if resolved_check == 'false':
+            cur.execute(''' SELECT * FROM insurance_claim where resolved= %s''' , str(0))
+        else:
+            cur.execute(''' SELECT * FROM insurance_claim ''')
+        insurance_claims = cur.fetchall()
+        
+        for insurance_claim in insurance_claims:
+            cur.execute('''call get_customer_name(%s); ''', str(insurance_claim['customer_id']))
+            customer_name = cur.fetchall()[0]['name']
+
+            cur.execute('''call get_plan_beneficary(%s); ''', str(insurance_claim['plan_id']))
+            beneficary_name = cur.fetchall()[0]['name']
+            insurance_claim["customer_name"] = customer_name
+            insurance_claim["beneficary_name"] = beneficary_name
+
+
+    
+    context = {
+        "insurance_claims": insurance_claims,
+    }
+    return render_template(template_name , context=context)
 
 
 

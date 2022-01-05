@@ -1,4 +1,4 @@
-from wtforms import Form, BooleanField, StringField, PasswordField, validators , SelectField , DateField , SelectMultipleField
+from wtforms import Form, BooleanField, StringField, PasswordField, validators , SelectField , DateField , SelectMultipleField , TextAreaField
 from wtforms.fields.numeric import IntegerField
 
 
@@ -31,3 +31,12 @@ class PurchasedPlansForm(Form):
     ptype_id                 = SelectField(u'Name' , coerce=str)
     benefits_id              = SelectField(u'Beneficiary', coerce=str)
     # dependant = BooleanField(label="Dependant")
+
+
+class FileInsuranceClaimForm(Form):
+    expense_amount = IntegerField('Expenses amount',  [validators.DataRequired()])
+    expense_details = TextAreaField('Expenses Details',  [validators.DataRequired()])
+    insurance_date = DateField('Date',  [validators.DataRequired()])
+    # customer_id = SelectField(u'Customer', coerce=str)
+    plan_id = SelectField(u'Plan', coerce=str)
+    # resolved  = BooleanField('Resolved?',  [validators.DataRequired() , ])

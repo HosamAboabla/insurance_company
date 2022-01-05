@@ -37,7 +37,11 @@
                                             {{ field.description }}
                                             <label class="col-md-12 p-0">{{ field.label }}</label>
                                             <div class="col-md-12 border-bottom p-0">
-                                                {{ field(class_="form-control p-0 border-0")|safe }}
+                                                {% if field.type == "BooleanField" %}
+                                                    {{ field(class_="p-0 border-0")|safe }}
+                                                {% else %}
+                                                    {{ field(class_="form-control p-0 border-0")|safe }}
+                                                {% endif %}
                                             </div>
 
                                             {% if field.errors %}
