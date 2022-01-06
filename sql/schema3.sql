@@ -314,9 +314,34 @@ begin
 End //
 DELIMITER ;
 
+
+
+
+
+
+drop procedure if exists customer_avilable_hospitals;
+DElIMITER //
+create procedure customer_avilable_hospitals(
+In c_id int 
+)
+begin
+	select distinct id , name , address
+	from hospital , has
+	where hospital.id = has.Hosp_id and has.plan_id in (
+		select distinct ptype_id
+		from customer , purchased_plans
+		where customer.id = purchased_plans.customer_id and customer.id = c_id
+	);
+End //
+DELIMITER ;
+
+
+
 call dependants_of_customer(1);
 call get_customer_benefits(1);
 
 call customer_purchased_plans(1);
 
 call get_customer_name(1);
+
+call customer_avilable_hospitals(1);

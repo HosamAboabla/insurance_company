@@ -16,53 +16,14 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
 
 
-def excute_command(query):
-    cur = mysql.connection.cursor()
-    cur.execute(query)
-    mysql.connection.commit()
-
-
-def fetech_data(query):
-    cur = mysql.connection.cursor()
-    cur.execute(query)
-    mysql.connection.commit()
-
 
 @app.route("/")
-@app.route("/<name>")
-def index(name="John Doe"):
-    template_name = "base.html" 
-    context = {
-        "name":name,
-    }
-    return render_template(template_name , context=context)
-
-
-@app.route("/table")
-def table():
-    template_name = "basic-table.html" 
-    context = {
-        
-    }
-    return render_template(template_name , context=context)
-
-@app.route("/dashboard")
-def dashboard():
-    template_name = "dashboard.html" 
-    context = {
-        
-    }
-    return render_template(template_name , context=context)
-
-
-@app.route("/profile")
-def profile():
+def MainView():
     template_name = "profile.html" 
     context = {
         
     }
     return render_template(template_name , context=context)
-
 
 @app.route("/customer_create" , methods = ['GET' , 'POST'])
 def CustomerCreationView():
@@ -75,12 +36,6 @@ def CustomerCreationView():
         phone_number = form.phone_number.data
         address = form.address.data
         
-        # query = "insert into customers values (%d , %s , %s  , %s , %s , %s);" , None , last_name , phone_number , address , None
-        # query = f"insert into customers VALUES ('{None}' , '{first_name}' , '{last_name}'  , '{phone_number}' , '{address}' , '{None}');"
-        # query = ''' 
-        #     insert into 
-        #     customers (`id` , `first_name` , `last_name` , `phone_number` , `address` , `benefits`) 
-        #     VALUES (%s , %s , %s  , %s , %s , %s)''',(None , first_name , last_name , phone_number , address , None)
         cur.execute(''' 
             insert into 
             customer (`id` , `name` , `phone_number` , `address` , `benplan_id`) 
@@ -88,9 +43,10 @@ def CustomerCreationView():
         # records = db(query)
         mysql.connection.commit()
 
-        return redirect(url_for('table'))
+        return redirect(url_for('CustomerListView'))
+
     context = {
-        
+        "title":"Add customer",
     }
     return render_template(template_name , context=context , form = form)
 
@@ -101,12 +57,28 @@ def CustomerListView():
     
     cur.execute(''' SELECT * FROM list_of_customers ''')
     customers = cur.fetchall()
-    print(customers)
     context = {
         "customers": customers,
+        "title":"List of customers",
     }
     return render_template(template_name , context=context)
 
+
+
+
+@app.route("/customer_hospitals/<id>" , methods = ['GET'])
+def CustomerHospitalsListView(id):
+    template_name = "customers_hosptials_list.html" 
+    cur = mysql.connection.cursor()
+    
+    cur.execute(''' call customer_avilable_hospitals(%s); ''' , str(id))
+    avilable_hospitlas = cur.fetchall()
+
+    context = {
+        "avilable_hospitlas": avilable_hospitlas,
+        "title":"Available hospitals",
+    }
+    return render_template(template_name , context=context)
 
 # -------------------------------- Customer purchase plan --------------------------------
 @app.route("/purhase_plan/<id>", methods = ['GET' , 'POST'])
@@ -138,7 +110,7 @@ def PurchasedPlansView(id):
             mysql.connection.commit()
 
 
-        return redirect(url_for('table'))
+        return redirect(url_for('CustomerListView'))
 
     else:
         cur.execute(''' call dependants_of_customer(%s);''' , (id))
@@ -181,8 +153,6 @@ def FileInsuranceClaimView(id):
         plan_id = form.plan_id.data
         resolved = False
 
-        print(form.data)
-    
 
         if expenses_amout and expense_details and insurance_data and plan_id:
             cur.execute(''' 
@@ -190,7 +160,7 @@ def FileInsuranceClaimView(id):
                 (%s , %s , %s , %s , %s , %s);''',( expenses_amout , expense_details , insurance_data , id , plan_id , resolved))
             mysql.connection.commit()
  
-        return redirect(url_for('table'))
+        return redirect(url_for('CustomerListView'))
 
     else:
 
@@ -224,12 +194,14 @@ def InsuranceClaimListView():
             mysql.connection.commit()
             
 
-        return redirect(url_for('table'))
+        return redirect(url_for('InsuranceClaimListView'))
     else:
 
         resolved_check = request.args.get("resolved")
         if resolved_check == 'false':
             cur.execute(''' SELECT * FROM insurance_claim where resolved= %s''' , str(0))
+        elif resolved_check == 'true':
+            cur.execute(''' SELECT * FROM insurance_claim where resolved= %s''' , str(1))
         else:
             cur.execute(''' SELECT * FROM insurance_claim ''')
         insurance_claims = cur.fetchall()
@@ -262,8 +234,6 @@ def HospitalCreationView():
         name =  form.name.data
         address = form.address.data
         
-        print(form.data)
-
         cur.execute(''' 
             insert into 
             hospital (`id` , `name` , `address`) 
@@ -271,9 +241,9 @@ def HospitalCreationView():
         # records = db(query)
         mysql.connection.commit()
 
-        return redirect(url_for('table'))
+        return redirect(url_for('HospitalAssociatePlanView'))
     context = {
-        
+        "title":"Add hospital",
     }
     return render_template(template_name , context=context , form = form)
 
@@ -298,7 +268,7 @@ def AddDependantView():
                 VALUES (%s , %s , %s  , %s , %s , %s)''',(None , name  , customer_id , None , relationship , birthdate))
             mysql.connection.commit()
 
-        return redirect(url_for('table'))
+        return redirect(url_for('CustomerListView'))
 
     else:
         cur.execute(''' SELECT * FROM customer ''')
@@ -309,7 +279,7 @@ def AddDependantView():
         form.customer_id.choices = choices
         
     context = {
-        
+        "title":"Add dependant",
     }
     return render_template(template_name , context=context , form = form)
 
@@ -333,7 +303,7 @@ def HospitalAssociatePlanView():
                     VALUES (%s , %s )''',(plan_id , hospital_id))
                 mysql.connection.commit()
 
-        return redirect(url_for('table'))
+        return redirect(url_for('CustomerListView'))
 
     else:
         cur.execute(''' SELECT * FROM plan_type ''')
@@ -345,14 +315,12 @@ def HospitalAssociatePlanView():
         choices_plan_types = [ (plans_type['id'] , f"{plans_type['type']}") for plans_type in plans_types ]
         choices_hospitals = [ (hospital['id'] , f"{hospital['name']}") for hospital in hospitals ]
 
-        # user = User.query.get(id)
-        # form = UserDetails(request.POST, obj=user)
-        # form.customer_id.default = (None , "-----")
+
         form.plan_id.choices = choices_plan_types
         form.Hosp_id.choices = choices_hospitals
 
     context = {
-        
+        "title":"Associate hospital with plan types",
     }
     return render_template(template_name , context=context , form = form)
 
