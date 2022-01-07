@@ -11,7 +11,7 @@
 * Linux
     ```bash
     $ virtualenv venv
-    $ source venv/bit/activate
+    $ source venv/bin/activate
     $ pip install -r requirements.txt
     ```
 
