@@ -1,9 +1,5 @@
 use health_insurance;
 
-insert into plan_type(id , type,price) values(null , 'normal',1234.56);
-insert into plan_type(id , type,price) values(null , 'premium',2134.56);
-insert into plan_type(id , type,price) values(null , 'golden',4132.56);
-
 insert into customer (name,phone_number,address) values('hossam','01215415615','cairo');
 insert into customer (name,phone_number,address) values('galal','01215415615','tanta');
 insert into customer (name,phone_number,address) values('reda','01215415615','tanta');
