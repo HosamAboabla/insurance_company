@@ -336,12 +336,21 @@ End //
 DELIMITER ;
 
 
-
+/*
 call dependants_of_customer(1);
 call get_customer_benefits(1);
 
 call customer_purchased_plans(1);
 
-call get_customer_name(1);
+call get_customer_name(4);
+
+
+call get_plan_beneficary(11);
 
 call customer_avilable_hospitals(1);
+
+
+SELECT LAST_INSERT_ID();
+
+
+*/
